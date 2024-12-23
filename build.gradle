@@ -1,0 +1,36 @@
+plugins {
+    id 'java'
+}
+
+group = 'org.example'
+version = '1.0.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+tasks.register('copyDependencies', Copy) {
+    from configurations.runtimeClasspath
+    into layout.buildDirectory.dir("agent/dependencies")
+}
+
+tasks.register('packageAgent', Jar) {
+    from sourceSets.main.output
+    archiveFileName.set("hello-world-agent-${project.version}.jar")
+    destinationDirectory.set(layout.buildDirectory.dir("agent/libs"))
+}
+
+tasks.build {
+    dependsOn(copyDependencies, packageAgent)
+}
+
+test {
+    useJUnitPlatform()
+}
